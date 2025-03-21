@@ -1,21 +1,20 @@
 import { For } from "solid-js";
-import { createAsync, query } from "@solidjs/router";
+import { createAsync, query, RouteDefinition } from "@solidjs/router";
 import { getTasks } from "~/db/db";
 import Task from "~/components/Task/Task";
 
-const gTasks = query(getTasks, "tasks");
+const fetchTasks = query(getTasks, "tasks");
 
 export const route = {
-  preload: () => gTasks(),
-};
+  preload: () => fetchTasks(),
+} satisfies RouteDefinition;
 
 export default function Home() {
-  const tasks = createAsync(() => gTasks());
-
+  const tasks = createAsync(() => fetchTasks());
   return (
     <main>
       <h1>Tasks</h1>
-      <For each={tasks()}>{(t) => <Task task={t} />}</For>
+      <For each={tasks()}>{(t) => <Task {...t} />}</For>
     </main>
   );
 }

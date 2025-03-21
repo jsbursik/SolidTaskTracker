@@ -1,12 +1,7 @@
 import postgres from "postgres";
 import dotenv from "dotenv";
 
-type Task = {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-};
+import type { Task } from "~/types";
 
 dotenv.config();
 
@@ -16,8 +11,9 @@ const sql = postgres(`postgres://jsbursik:${PG_PASS}@jsbursik.com:5432/dev`);
 
 export async function getTasks() {
   "use server";
+  console.log("Loading Tasks from DB");
   try {
-    const tasks = await sql<Task[]>`SELECT * FROM solid.tasks`;
+    const tasks = await sql<Task[]>`SELECT * FROM solid.tasks ORDER BY "ID"`;
     if (!tasks || tasks.length === 0) {
       throw new Error("No tasks found");
     }
@@ -25,6 +21,15 @@ export async function getTasks() {
   } catch (e) {
     console.error("Error retrieving tasks: ", e);
     return [];
+  }
+}
+
+export async function toggleTask(t: Task) {
+  "use server";
+  try {
+    await sql`UPDATE solid.tasks SET completed = ${!t.completed} WHERE "ID" = ${t.ID}`;
+  } catch (e) {
+    console.error("Error modifying task: ", e);
   }
 }
 
