@@ -8,7 +8,16 @@ dotenv.config();
 
 const PG_PASS = process.env.POSTGRES_PASS;
 
-const sql = postgres(`postgres://jsbursik:${PG_PASS}@jsbursik.com:5432/dev`);
+declare global {
+  var _sql: ReturnType<typeof postgres> | undefined;
+}
+
+if (!globalThis._sql) {
+  globalThis._sql = postgres(`postgres://jsbursik:${PG_PASS}@jsbursik.com/dev`);
+  console.log("Connected to database");
+}
+
+const sql = globalThis._sql as ReturnType<typeof postgres>;
 
 export async function getTasks() {
   console.log("Fetching tasks...");
